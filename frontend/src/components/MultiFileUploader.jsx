@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Upload, File, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { apiService } from "../services/apiService";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const MultiFileUploader = () => {
   const [files, setFiles] = useState([]);
@@ -31,13 +33,15 @@ const MultiFileUploader = () => {
     try {
       setUploading(true);
       const response = await apiService.uploadFiles(formData);
-      setMessage("Files uploaded successfully!");
-      setMessageType("success");
+      toast.success("Files uploaded successfully!");
       setFiles([]);
+      setMessage("");
+      setMessageType("");
     } catch (err) {
       console.error(err);
-      setMessage("Upload failed. Try again.");
-      setMessageType("error");
+      toast.error("Upload failed. Try again.");
+      setMessage("");
+      setMessageType("");
     } finally {
       setUploading(false);
     }
@@ -53,6 +57,16 @@ const MultiFileUploader = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 pt-24 pb-12">
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="text-center mb-12">
@@ -153,24 +167,6 @@ const MultiFileUploader = () => {
         </div>
 
         {/* Message Display */}
-        {message && (
-          <div
-            className={`mt-6 p-4 rounded-xl border ${
-              messageType === "success"
-                ? "bg-green-50 border-green-200 text-green-800"
-                : "bg-red-50 border-red-200 text-red-800"
-            }`}
-          >
-            <div className="flex items-center">
-              {messageType === "success" ? (
-                <CheckCircle className="w-5 h-5 mr-2 text-green-600" />
-              ) : (
-                <AlertCircle className="w-5 h-5 mr-2 text-red-600" />
-              )}
-              <span className="font-medium">{message}</span>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

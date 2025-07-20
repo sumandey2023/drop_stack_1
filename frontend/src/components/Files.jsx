@@ -16,6 +16,8 @@ import {
 import { apiService } from "../services/apiService";
 import { getThumbnailUrl, getImageKitUrl } from "../utils/imagekit";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Files = () => {
   const [files, setFiles] = useState([]);
@@ -23,6 +25,7 @@ const Files = () => {
   const [error, setError] = useState("");
   const [imageErrors, setImageErrors] = useState(new Set());
   const [activeMobileOverlay, setActiveMobileOverlay] = useState(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
   useEffect(() => {
     fetchFiles();
@@ -50,8 +53,10 @@ const Files = () => {
       const deleteUrl = `${baseUrl}/delete/deleteFile/${fileId}`;
       await axios.delete(deleteUrl);
       setFiles(files.filter((file) => file._id !== fileId));
+      toast.success("File deleted successfully!");
     } catch (err) {
       console.error("Error deleting file:", err);
+      toast.error("Failed to delete file. Please try again.");
     }
   };
 
@@ -69,6 +74,7 @@ const Files = () => {
       document.body.removeChild(a);
     } catch (err) {
       console.error("Error downloading file:", err);
+      toast.error("Failed to download file. Please try again.");
     }
   };
 
@@ -202,6 +208,47 @@ const Files = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 pt-24 pb-12">
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      {/* Delete confirmation modal */}
+      {pendingDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/80 via-indigo-100/70 to-purple-100/70 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-80 max-w-full border border-indigo-100">
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 flex items-center">
+              <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+              Confirm Delete
+            </h2>
+            <p className="mb-6 text-gray-700">
+              Are you sure you want to delete this file?
+            </p>
+            <div className="flex justify-end space-x-2">
+              <button
+                className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
+                onClick={() => setPendingDeleteId(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 shadow"
+                onClick={async () => {
+                  await handleDeleteFile(pendingDeleteId);
+                  setPendingDeleteId(null);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="text-center mb-12">
@@ -278,7 +325,7 @@ const Files = () => {
                           <Download className="w-5 h-5 text-gray-700" />
                         </button>
                         <button
-                          onClick={() => handleDeleteFile(file._id)}
+                          onClick={() => setPendingDeleteId(file._id)}
                           className="p-2 bg-red-500 rounded-lg hover:bg-red-600 transition-colors duration-200"
                           title="Delete file"
                         >
@@ -323,9 +370,21 @@ const Files = () => {
 
                   {/* File Info */}
                   <div className="p-4">
-                    <h3 className="font-medium text-gray-900 truncate mb-1">
-                      {file.fileName}
-                    </h3>
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-medium text-gray-900 truncate">
+                        {file.fileName}
+                      </h3>
+                      {/* Show delete button for all file types on mobile */}
+                      {isMobile() && (
+                        <button
+                          onClick={() => setPendingDeleteId(file._id)}
+                          className="ml-2 p-1 bg-red-500 rounded-lg hover:bg-red-600 transition-colors duration-200"
+                          title="Delete file"
+                        >
+                          <Trash2 className="w-4 h-4 text-white" />
+                        </button>
+                      )}
+                    </div>
                     <div className="flex items-center justify-between text-sm text-gray-500">
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-1" />
