@@ -21,6 +21,7 @@ const Files = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [imageErrors, setImageErrors] = useState(new Set());
+  const [activeMobileOverlay, setActiveMobileOverlay] = useState(null);
 
   useEffect(() => {
     fetchFiles();
@@ -170,6 +171,8 @@ const Files = () => {
     }
   };
 
+  const isMobile = () => window.innerWidth < 768; // Tailwind's md breakpoint
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 pt-24 pb-12">
@@ -236,12 +239,31 @@ const Files = () => {
                   className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group"
                 >
                   {/* File Preview */}
-                  <div className="relative aspect-square bg-white">
+                  <div
+                    className="relative aspect-square bg-white"
+                    onClick={() => {
+                      if (isMobile()) {
+                        setActiveMobileOverlay(file._id);
+                      }
+                    }}
+                  >
                     {renderFilePreview(file)}
-
                     {/* Overlay with actions */}
-                    <div className="absolute inset-0  group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center">
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex space-x-2">
+                    <div
+                      className={`
+                        absolute inset-0 flex items-center justify-center
+                        transition-all duration-300
+                        ${
+                          isMobile()
+                            ? activeMobileOverlay === file._id
+                              ? "bg-black bg-opacity-50 opacity-100"
+                              : "opacity-0 pointer-events-none"
+                            : "group-hover:bg-opacity-50 opacity-0 group-hover:opacity-100"
+                        }
+                      `}
+                      onClick={(e) => e.stopPropagation()} // Prevent click from bubbling up
+                    >
+                      <div className="flex space-x-2">
                         <button
                           onClick={() =>
                             handleDownloadFile(file.fileUrl, file.fileName)
@@ -269,6 +291,27 @@ const Files = () => {
                           >
                             <Eye className="w-5 h-5 text-white" />
                           </a>
+                        )}
+                        {isMobile() && activeMobileOverlay === file._id && (
+                          <button
+                            onClick={() => setActiveMobileOverlay(null)}
+                            className="absolute top-2 right-2 p-1 bg-white rounded-full"
+                            title="Close"
+                          >
+                            <svg
+                              className="w-4 h-4 text-gray-700"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
                         )}
                       </div>
                     </div>
