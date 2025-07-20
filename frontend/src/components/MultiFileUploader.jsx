@@ -39,7 +39,13 @@ const MultiFileUploader = () => {
       setMessageType("");
     } catch (err) {
       console.error(err);
-      toast.error("Upload failed. Try again.");
+      if (err.code === "ECONNABORTED") {
+        toast.error(
+          "Request timed out. Please try again or upload smaller files."
+        );
+      } else {
+        toast.error("Upload failed. Try again.");
+      }
       setMessage("");
       setMessageType("");
     } finally {

@@ -56,7 +56,11 @@ const Files = () => {
       toast.success("File deleted successfully!");
     } catch (err) {
       console.error("Error deleting file:", err);
-      toast.error("Failed to delete file. Please try again.");
+      if (err.code === "ECONNABORTED") {
+        toast.error("Request timed out. Please try again.");
+      } else {
+        toast.error("Failed to delete file. Please try again.");
+      }
     }
   };
 
@@ -74,7 +78,11 @@ const Files = () => {
       document.body.removeChild(a);
     } catch (err) {
       console.error("Error downloading file:", err);
-      toast.error("Failed to download file. Please try again.");
+      if (err.code === "ECONNABORTED") {
+        toast.error("Request timed out. Please try again.");
+      } else {
+        toast.error("Failed to download file. Please try again.");
+      }
     }
   };
 
