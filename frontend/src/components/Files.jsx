@@ -48,10 +48,7 @@ const Files = () => {
 
   const handleDeleteFile = async (fileId) => {
     try {
-      const baseUrl =
-        "http://localhost:3000" || "https://drop-stack-1.onrender.com";
-      const deleteUrl = `${baseUrl}/delete/deleteFile/${fileId}`;
-      await axios.delete(deleteUrl);
+      await apiService.deleteFile(fileId);
       setFiles(files.filter((file) => file._id !== fileId));
       toast.success("File deleted successfully!");
     } catch (err) {
