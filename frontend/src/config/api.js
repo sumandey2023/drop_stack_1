@@ -10,7 +10,7 @@ const API_CONFIG = {
   ENDPOINTS: {
     UPLOAD_FILES: "/upload/uploadFiles",
     GET_FILES: "/get/getFiles",
-    DELETE_FILE: "/files",
+    DELETE_FILE: "/delete/deleteFile",
     DOWNLOAD_FILE: "/files/download",
   },
 

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { apiService } from "../services/apiService";
 import { getThumbnailUrl, getImageKitUrl } from "../utils/imagekit";
+import axios from "axios";
 
 const Files = () => {
   const [files, setFiles] = useState([]);
@@ -44,7 +45,10 @@ const Files = () => {
 
   const handleDeleteFile = async (fileId) => {
     try {
-      await apiService.deleteFile(fileId);
+      const baseUrl =
+        "http://localhost:3000" || "https://drop-stack-1.onrender.com";
+      const deleteUrl = `${baseUrl}/delete/deleteFile/${fileId}`;
+      await axios.delete(deleteUrl);
       setFiles(files.filter((file) => file._id !== fileId));
     } catch (err) {
       console.error("Error deleting file:", err);
@@ -273,13 +277,13 @@ const Files = () => {
                         >
                           <Download className="w-5 h-5 text-gray-700" />
                         </button>
-                        {/* <button
+                        <button
                           onClick={() => handleDeleteFile(file._id)}
                           className="p-2 bg-red-500 rounded-lg hover:bg-red-600 transition-colors duration-200"
                           title="Delete file"
                         >
                           <Trash2 className="w-5 h-5 text-white" />
-                        </button> */}
+                        </button>
                         {(isImageFile(file.fileType) ||
                           isVideoFile(file.fileType)) && (
                           <a
