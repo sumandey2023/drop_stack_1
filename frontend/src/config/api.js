@@ -3,7 +3,7 @@ const API_CONFIG = {
   // Base URL for all API calls
   BASE_URL:
     process.env.NODE_ENV === "production"
-      ? "https://your-production-domain.com/api"
+      ? "https://drop-stack-1.onrender.com"
       : "http://localhost:3000",
 
   // API endpoints
